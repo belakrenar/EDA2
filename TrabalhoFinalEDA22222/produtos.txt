@@ -1,0 +1,6 @@
+0 DomCasmurro MachadoAssis Record 29.90 220 1899-01-01 livro
+1 1984 GeorgeOrwell CompanhiaDasLetras 45.50 328 1949-06-08 livro
+2 Veja Redacao Abril 7.90 60 2024-01-15 revista
+3 SuperInteressante RedacaoAbril Abril 12.50 80 2024-03-10 revista
+4 Batman FrankMiller Panini 25.00 100 1986-06-01 hq
+5 TurmaDaMonica MauricioDeSousa Panini 18.90 40 2023-09-10 hq
