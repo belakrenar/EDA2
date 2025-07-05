@@ -3,19 +3,20 @@
 
 #include <string>
 #include <iostream>
+#include <sstream>
 
 using namespace std;
 
-enum class Tipo{
+enum class Tipo {
   LIVRO,
   REVISTA,
-  HQ,
+  HQ, 
 };
 
-class Produto{
-  protected:
+class Produto {
+protected:
   static int idAtual;
-  const int id;
+  int id;
   string titulo;
   string autor;
   string editora;
@@ -24,127 +25,108 @@ class Produto{
   string dataPublicacao;
   Tipo tipo;
 
-  public:
+public:
+  Produto(int i) : id(i) {}
 
-  Produto(string t, string a,string ed, double p, int pg, string data, Tipo tp)
+  Produto(string t, string a, string ed, double p, int pg, string data, Tipo tp)
     : id(idAtual++), titulo(t), autor(a), editora(ed), preco(p), paginas(pg), dataPublicacao(data), tipo(tp) {}
+
+  Produto(int i, string t, string a, string ed, double p, int pg, string data, Tipo tp)
+    : id(i), titulo(t), autor(a), editora(ed), preco(p), paginas(pg), dataPublicacao(data), tipo(tp) {}
 
   virtual ~Produto() = default;
 
   Produto& operator=(const Produto& outro) {
-    titulo = outro.titulo;
-    autor = outro.autor;
-    editora = outro.editora;
-    preco = outro.preco;
-    paginas = outro.paginas;
-    dataPublicacao = outro.dataPublicacao;
-    tipo = outro.tipo;
+    if (this != &outro) {
+      id = outro.id;
+      titulo = outro.titulo;
+      autor = outro.autor;
+      editora = outro.editora;
+      preco = outro.preco;
+      paginas = outro.paginas;
+      dataPublicacao = outro.dataPublicacao;
+      tipo = outro.tipo;
+    }
     return *this;
   }
 
-  int getId(){
-    return id;
-  }
+  int getId() const { return id; }
+  string getTitulo() const { return titulo; }
+  string getAutor() const { return autor; }
+  string getEditora() const { return editora; }
+  double getPreco() const { return preco; }
+  int getPaginas() const { return paginas; }
+  string getDataPublicacao() const { return dataPublicacao; }
+  Tipo getTipo() const { return tipo; }
 
-  string getTitulo(){
-    return titulo;
-  }
-
-  string getAutor(){
-    return autor;
-  }
-
-  string getEditora(){
-    return editora;
-  }
-
-  double getPreco(){
-    return preco;
-  }
-
-  int getPaginas(){
-    return paginas;
-  }
-
-  string getTipo(){
-    switch(tipo){
-      case Tipo::LIVRO: return "Livro";
-      case Tipo::REVISTA: return "Revista";
-      case Tipo::HQ: return "HQ";
-      default: return "O tipo do produto não foi definido.";
+  string getTipoString() const {
+    switch (tipo) {
+      case Tipo::LIVRO: return "livro";
+      case Tipo::REVISTA: return "revista";
+      case Tipo::HQ: return "hq";
+      default: return "desconhecido";
     }
   }
 
-  virtual void toString(ostream& os) const = 0;
-
-};
-
-class Livro : public Produto{  
-  public:
-
-  Livro(string t, string a, string ed, double p, int pg, string data)
-    : Produto(t, a, ed, p, pg, data, Tipo::LIVRO) {}
-
-  void toString(ostream& os) const override{
-    os << "ID: " << id << endl
-       << "Categoria: livro" << endl
-       << "Título: " << titulo << endl
-       << "Autor: " << autor << endl
-       << "Editora: " << editora << endl
-       << "Data de publicação: " << dataPublicacao << endl
-       << paginas << " páginas" << endl
-       << "Preço: R$" << preco;
+  static Tipo tipoFromString(const string& tipoStr) {
+    if (tipoStr == "livro") return Tipo::LIVRO;
+    if (tipoStr == "revista") return Tipo::REVISTA;
+    if (tipoStr == "hq") return Tipo::HQ;
+    throw invalid_argument("Tipo de produto inválido: " + tipoStr);
   }
 
-};
+  static Produto fromString(const string& linha) {
+    stringstream ss(linha);
+    int id, paginas;
+    string titulo, autor, editora, data, tipoStr;
+    double preco;
 
-class Revista : public Produto{
-  int edicao;  
-  public:
+    ss >> id >> titulo >> autor >> editora >> preco >> paginas >> data >> tipoStr;
 
-  Revista(string t, string a, string ed, double p, int pg, string data, int edic)
-    : Produto(t, a, ed, p, pg, data, Tipo::REVISTA), edicao(edic) {}
+    Tipo tipo = tipoFromString(tipoStr);
+    if (id >= idAtual) idAtual = id + 1;
 
-  void toString(ostream& os) const override {
-    os << "ID: " << id << endl
-       << "Categoria: revista" << endl
-       << "Título: " << titulo << endl
-       << "Edição: " << edicao << endl
-       << "Autor: " << autor << endl
-       << "Editora: " << editora << endl
-       << "Data de publicação: " << dataPublicacao << endl
-       << paginas << " páginas" << endl
-       << "Preço: R$" << preco;
-  }
-};
-
-class Quadrinho : public Produto{
-  int edicao;
-
-  public:
-
-  Quadrinho(string t, string a, string ed, double p, int pg, string data, int edic)
-    : Produto(t, a, ed, p, pg, data, Tipo::HQ), edicao(edic) {}
-
-  void toString(ostream& os) const override {
-    os << "ID: " << id << endl
-       << "Categoria: HQ" << endl
-       << "Título: " << titulo << endl
-       << "Edição: " << edicao << endl
-       << "Autor: " << autor << endl
-       << "Editora: " << editora << endl
-       << "Data de publicação: " << dataPublicacao << endl
-       << paginas << " páginas" << endl
-       << "Preço: R$" << preco;
+    return Produto(id, titulo, autor, editora, preco, paginas, data, tipo);
   }
 
+  string toString() const {
+    stringstream ss;
+    ss << "\nID: " << id << "\n"
+       << "Categoria: " << getTipoString() << "\n"
+       << "Título: " << titulo << "\n"
+       << "Autor: " << autor << "\n"            
+       << "Editora: " << editora << "\n"
+       << "Data de publicação: " << dataPublicacao << "\n"
+       << paginas << " páginas\n"
+       << "Preço: R$" << preco << "\n";
+    return ss.str();
+  }
+
+  friend ostream& operator<<(ostream& os, const Produto& p) {
+    os << p.id << " " << p.titulo << " " << p.autor << " " << p.editora << " "
+       << p.preco << " " << p.paginas << " " << p.dataPublicacao << " " << p.getTipoString();
+    return os;
+  }
 };
 
 int Produto::idAtual = 0;
 
-inline ostream& operator<<(ostream& os, const Produto& p) {
-    p.toString(os);
-    return os;
-}
+class Livro : public Produto {
+public:
+  Livro(string t, string a, string ed, double p, int pg, string data)
+    : Produto(t, a, ed, p, pg, data, Tipo::LIVRO) {}
+};
+
+class Revista : public Produto {
+public:
+  Revista(string t, string a, string ed, double p, int pg, string data)
+    : Produto(t, a, ed, p, pg, data, Tipo::REVISTA) {}
+};
+
+class Quadrinho : public Produto {
+public:
+  Quadrinho(string t, string a, string ed, double p, int pg, string data)
+    : Produto(t, a, ed, p, pg, data, Tipo::HQ) {}
+};
 
 #endif
