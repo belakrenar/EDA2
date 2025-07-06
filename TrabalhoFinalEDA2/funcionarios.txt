@@ -1,0 +1,4 @@
+0 Maria 12345678999 gerente 5000
+1 João 65432198788 vendedor 3000
+2 Paula 11122233377 caixa 2800
+3 Geraldo 11122233344 vendedor 3000
